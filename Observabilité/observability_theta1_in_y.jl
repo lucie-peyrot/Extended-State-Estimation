@@ -28,8 +28,10 @@ OO = vcat(OO...)  # concatenate vertically
 @show size(C)
 @show OO
 
-@parameters J1 J2 D1 D2 KL Ks ω0 ω1 ω2 Tm1 Tm2 N
+@parameters J1 J2 D1 D2 KL Ks ω0 
 @parameters α1 α2 β1 β2 Pr1 Pr2 P0 PG1 PG2 θ1 
+@variables t
+@variables ω1(t) ω2(t) Tm1(t) Tm2(t) N(t)
 
 
 # dictionnaire de valeurs numériques
