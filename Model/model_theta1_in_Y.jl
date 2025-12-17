@@ -1,10 +1,10 @@
-module Model
+module ModelTheta1InY
 
 using LinearAlgebra
 using Symbolics
 using ModelingToolkit
 
-export A, B, C, D, E, W
+export A, B, C, D, E, W, X, U, V, Y, f_eqs
 
 @parameters t
 
