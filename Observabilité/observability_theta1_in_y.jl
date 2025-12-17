@@ -11,8 +11,8 @@ export A, B, C, D, E, W, OO, A_num, B_num, C_num, D_num, E_num
 # ----------------------------
 # Parameters
 # ----------------------------
-@parameters J1 J2 D1 D2 KL Ks ω0
-@parameters α1 α2 β1 β2 Pr1 Pr2 P0
+@parameters J1 J2 D1 D2 KL Ks ω0 
+@parameters α1 α2 β1 β2 Pr1 Pr2 P0 PG1 PG2
 
 # ----------------------------
 # States (θ1 is measured/fixed)
@@ -51,19 +51,26 @@ W = [W1, W2, W3, W4]
 # ----------------------------
 # State equations (f_eqs)
 # ----------------------------
+# Système dynamique
+ωr = (J1*ω1 + J2*ω2)/(J1+J2)
 f_eqs = [
     # dω1/dt
-    (-KL/(J1*ω0))*θ1 - (D1/J1)*ω1 + (1/J1)*Tm1 + (KL/(J1*ω0))*θ2,
+    (Tm1 - (PG1/ω0) - D1*(ω1 - ω0))/J1,
+
     # dTm1/dt
-    -β1*ω1 - α1*ω0*Tm1 - α1*Pr1*N,
-    # dθ2/dt
-    ω2,
+    -α1*(Tm1 - (N*Pr1+P0)*ω1) - β1*(ω1 - ω0),
+
+    # dθ2/dt = ω2
+    ω2 - ω0,
+
     # dω2/dt
-    (KL/(J2*ω0))*θ1 - (KL/(J2*ω0))*θ2 - (D2/J2)*ω2 + (1/J2)*Tm2,
+    (Tm2 - (PG2/ω0) - D2*(ω2 - ω0))/J2,
+
     # dTm2/dt
-    -β2*ω2 - α2*ω0*Tm2 - α2*Pr2*N,
+    -α2*(Tm2 - (N*Pr2+P0)*ω2) - β2*(ω2 - ω0),
+
     # dN/dt
-    -Ks*(J1/(J1+J2))*ω1 - Ks*(J2/(J1+J2))*ω2
+    Ks*(ωr - ω0)
 ]
 
 # ----------------------------
@@ -160,5 +167,8 @@ B_num = Symbolics.value.(substitute(B, valeurs_numeriques))
 C_num = Symbolics.value.(substitute(C, valeurs_numeriques))
 D_num = Symbolics.value.(substitute(D, valeurs_numeriques)) 
 E_num = Symbolics.value.(substitute(E, valeurs_numeriques))
+OO_num = Symbolics.value.(substitute(OO, valeurs_numeriques))
+
+@show rank(OO_num)
 
 end # module
