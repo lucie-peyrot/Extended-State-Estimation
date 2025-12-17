@@ -1,10 +1,11 @@
+module Observability
 using MAT               # pour charger .mat
 using LinearAlgebra
 using Distributions
 using Random
 using Symbolics
 using ModelingToolkit
-
+export A, C, O
 
 @parameters t
 
@@ -91,3 +92,4 @@ E = Symbolics.jacobian(Y, V)
 @show typeof(C)
 @show size(A)
 @show size(C)
+end # module
