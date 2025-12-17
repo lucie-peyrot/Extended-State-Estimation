@@ -1,11 +1,9 @@
 module Observability
-using MAT               # pour charger .mat
 using LinearAlgebra
-using Distributions
 using Random
 using Symbolics
 using ModelingToolkit
-export A, C, O
+export A, C, OO
 
 @parameters t
 
@@ -61,7 +59,7 @@ f_eqs = [
     ω1,
 
     # dω1/dt
-    (KL/(J1*ω0))*θ1-(D1/J1)*ω1+ (1/J1)*Tm1+ (KL/(J1*ω0))*θ2,
+    (-KL/(J1*ω0))*θ1-(D1/J1)*ω1+ (1/J1)*Tm1+ (KL/(J1*ω0))*θ2,
 
     # dTm1/dt
     -β1*ω1 -α1*ω0*Tm1-α1*Pr1*N,
@@ -92,4 +90,18 @@ E = Symbolics.jacobian(Y, V)
 @show typeof(C)
 @show size(A)
 @show size(C)
+# ----------------------------
+# Observability matrix
+# ----------------------------
+# OO = [C; C*A; C*A^2; ...; C*A^(n-1)] pour n = taille de l'état
+n = length(X)   # nombre d'états
+OO = [C]       # initialisation
+
+for i in 1:(n-1)
+    push!(OO, Symbolics.simplify.(C * (A^i))) 
+end
+
+OO = vcat(OO...)  # concatène verticalement
+
+@show OO
 end # module
