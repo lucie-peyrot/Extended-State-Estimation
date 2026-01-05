@@ -1,69 +1,88 @@
 import sympy as sp
 import json
 import numpy as np
-from model_theta1_in_Y import A, C, X
+from model_theta1_in_Y import A, C, X, KL
 
-# ----------------------------
-# Load numerical values (JSON)
-# ----------------------------
+# -------------------------------------------------
+# Load numerical values
+# -------------------------------------------------
 with open("Model/numerical_values.json", "r") as f:
-    values_json = json.load(f)
+    values = json.load(f)
 
-# ----------------------------
-# Map JSON values to the correct SymPy symbols / functions
-# ----------------------------
-# Get all state functions from the model
-state_funcs = [f for f in X]
+# -------------------------------------------------
+# Define numeric symbols (NO time dependence)
+# -------------------------------------------------
+theta1, omega1, Tm1 = sp.symbols('theta1 omega1 Tm1')
+theta2, omega2, Tm2 = sp.symbols('theta2 omega2 Tm2')
+N = sp.symbols('N')
 
-# Build a substitution dictionary for states
-state_subs = {}
-for f in state_funcs:
-    name = str(f.func)  # function name, e.g., 'omega1'
-    if name in values_json:
-        state_subs[f] = values_json[name]  # substitute numeric value
+P01, P02 = sp.symbols('P01 P02')
 
-# Build a substitution dictionary for parameters
-param_subs = {sp.Symbol(k): v for k, v in values_json.items()
-              if k not in state_subs.values()}
+Pr1, Pr2 = sp.symbols('Pr1 Pr2')
+KL_sym = sp.symbols('KL')
 
-# Merge state and parameter substitutions
-subs_all = {}
-subs_all.update(param_subs)
-subs_all.update(state_subs)
+# -------------------------------------------------
+# Build substitution dictionary
+# -------------------------------------------------
+subs = {}
 
-# ----------------------------
+# --- States ---
+subs.update({
+    sp.Function('theta1')(sp.Symbol('t')): values['theta1'],
+    sp.Function('omega1')(sp.Symbol('t')): values['omega1'],
+    sp.Function('Tm1')(sp.Symbol('t')): values['Tm1'],
+    sp.Function('theta2')(sp.Symbol('t')): values['theta2'],
+    sp.Function('omega2')(sp.Symbol('t')): values['omega2'],
+    sp.Function('Tm2')(sp.Symbol('t')): values['Tm2'],
+    sp.Function('N')(sp.Symbol('t')): values['N'],
+})
+
+# --- Inputs ---
+subs.update({
+    sp.Function('P01')(sp.Symbol('t')): values['P01'],
+    sp.Function('P02')(sp.Symbol('t')): values['P02'],
+})
+
+# --- Parameters ---
+for k, v in values.items():
+    subs[sp.Symbol(k)] = v
+
+# -------------------------------------------------
 # Substitute numeric values into A and C
-# ----------------------------
-A_num = A.subs(subs_all).evalf()
-C_num = C.subs(subs_all).evalf()
+# -------------------------------------------------
+A_num = A.subs(subs).evalf()
+C_num = C.subs(subs).evalf()
 
-# Convert to NumPy arrays
 A_np = np.array(A_num.tolist(), dtype=float)
 C_np = np.array(C_num.tolist(), dtype=float)
 
-# ----------------------------
-# Build the observability matrix
-# ----------------------------
+# -------------------------------------------------
+# Derived quantities (numerical substitution)
+# -------------------------------------------------
+F12 = KL * (values['theta1'] - values['theta2'])
+Pc1 = values['P01'] + values['N'] * values['Pr1']
+Pc2 = values['P02'] + values['N'] * values['Pr2']
+
+# -------------------------------------------------
+# Observability matrix
+# -------------------------------------------------
 n = len(X)
 OO_blocks = [C_np]
 A_power = A_np.copy()
 
-for i in range(1, n):
+for _ in range(1, n):
     OO_blocks.append(C_np @ A_power)
     A_power = A_power @ A_np
 
-OO_np = np.vstack(OO_blocks)
+OO = np.vstack(OO_blocks)
 
-# ----------------------------
-# Compute the numeric rank
-# ----------------------------
-rank = np.linalg.matrix_rank(OO_np, tol=1e-8)
+rank = np.linalg.matrix_rank(OO, tol=1e-8)
 
-# ----------------------------
-# Display results
-# ----------------------------
-print("--- Observability Analysis ---")
-print("Shape of A:", A_np.shape)
-print("Shape of C:", C_np.shape)
-print("Shape of Observability matrix OO:", OO_np.shape)
+# -------------------------------------------------
+# Results
+# -------------------------------------------------
+print("\n--- Observability Analysis ---")
+print("A shape:", A_np.shape)
+print("C shape:", C_np.shape)
+print("OO shape:", OO.shape)
 print("Rank of OO:", rank)

@@ -1,68 +1,48 @@
 import sympy as sp
 
 # ----------------------------
-# Time symbol
-# ----------------------------
-t = sp.symbols('t')
-
-# ----------------------------
 # Parameters
 # ----------------------------
 J1, J2, D1, D2, KL, Ks, omega0 = sp.symbols('J1 J2 D1 D2 KL Ks omega0')
 alpha1, alpha2, beta1, beta2 = sp.symbols('alpha1 alpha2 beta1 beta2')
-Pr1, Pr2, P0, PG1, PG2 = sp.symbols('Pr1 Pr2 P0 PG1 PG2')
+Pr1, Pr2, P01, P02 = sp.symbols('Pr1 Pr2 P01 P02')
 
 # ----------------------------
-# States (theta1 is measured/fixed)
+# States
 # ----------------------------
-theta1 = sp.Function('theta1')(t)
-omega1 = sp.Function('omega1')(t)
-Tm1 = sp.Function('Tm1')(t)
-theta2 = sp.Function('theta2')(t)
-omega2 = sp.Function('omega2')(t)
-Tm2 = sp.Function('Tm2')(t)
-N = sp.Function('N')(t)
-
+theta1, omega1, Tm1, theta2, omega2, Tm2, N = sp.symbols(
+    'theta1 omega1 Tm1 theta2 omega2 Tm2 N'
+)
 X = sp.Matrix([theta1, omega1, Tm1, theta2, omega2, Tm2, N])
 
 # ----------------------------
 # Control inputs
 # ----------------------------
-P01 = sp.Function('P01')(t)
-P02 = sp.Function('P02')(t)
 U = sp.Matrix([P01, P02])
 
 # ----------------------------
 # Disturbances
 # ----------------------------
-PL1 = sp.Function('PL1')(t)
-PL2 = sp.Function('PL2')(t)
+PL1, PL2 = sp.symbols('PL1 PL2')
 V = sp.Matrix([PL1, PL2])
 
 # ----------------------------
 # Measurements
-# theta1 is measured/fixed
 # ----------------------------
-PGm1 = sp.Function('PGm1')(t)
-PGm2 = sp.Function('PGm2')(t)
-
-F12 = KL * (theta1 - theta2)
-
-Y = sp.Matrix([theta1, PGm1, PGm2, F12])
-
-# Measurement noise
-W1, W2, W3, W4 = sp.symbols('W1 W2 W3 W4')
-W = sp.Matrix([W1, W2, W3, W4])
+PGm1, PGm2, Fm12 = sp.symbols('PGm1 PGm2 Fm12')
+Y = sp.Matrix([PGm1, PGm2, Fm12])
 
 # ----------------------------
-# State equations (f_eqs)
+# Linearized state equations (omega1 and omega2 replaced by omega0 in products/divisions)
 # ----------------------------
+
 # Power flows
 F12 = KL * (theta1 - theta2)
 Pc1 = P01 + N * Pr1
 Pc2 = P02 + N * Pr2
 omega_r = (J1 * omega0 + J2 * omega0) / (J1 + J2)  # nominal freq used
 
+# State derivatives
 f_eqs = sp.Matrix([
     # dtheta1/dt
     omega1 - omega0,
@@ -92,15 +72,15 @@ f_eqs = sp.Matrix([
 A = f_eqs.jacobian(X)
 B = f_eqs.jacobian(U)
 D = f_eqs.jacobian(V)
-
-r_sym = A.rank()
-
-# Output matrices
-C = Y.jacobian(X)
-E = Y.jacobian(V)
+C = sp.Matrix([
+    [KL, 0, 0, -KL, 0, 0, 0],  # F12 measured
+    [-KL, 0, 0, KL, 0, 0, 0],  # PGm1-PGm2
+    [KL, 0, 0, -KL, 0, 0, 0]   # same as F12
+])
+E = sp.zeros(3, 2)  # if disturbances are known exactly
 
 # ----------------------------
-# Display
+# Display matrices
 # ----------------------------
 sp.pprint(A)
 sp.pprint(C)
