@@ -70,7 +70,7 @@ f_eqs = sp.Matrix([
     (Tm1 - (PG1/omega0) - D1*(omega1 - omega0))/J1,
 
     # dTm1/dt
-    -alpha1*(Tm1 - (N*Pr1+P0)*omega1) - beta1*(omega1 - omega0),
+    -alpha1*(Tm1 - (N*Pr1+P0)*omega0) - beta1*(omega1 - omega0),
 
     # dθ2/dt = ω2
     omega2 - omega0,
@@ -79,7 +79,7 @@ f_eqs = sp.Matrix([
     (Tm2 - (PG2/omega0) - D2*(omega2 - omega0))/J2,
 
     # dTm2/dt
-    -alpha2*(Tm2 - (N*Pr2+P0)*omega2) - beta2*(omega2 - omega0),
+    -alpha2*(Tm2 - (N*Pr2+P0)*omega0) - beta2*(omega2 - omega0),
 
     # dN/dt
     Ks*(omega_r - omega0)
