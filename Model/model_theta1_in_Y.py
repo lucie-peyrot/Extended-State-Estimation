@@ -57,39 +57,52 @@ W = sp.Matrix([W1, W2, W3, W4])
 # ----------------------------
 # State equations (f_eqs)
 # ----------------------------
-# Power flows
-F12 = KL * (theta1 - theta2)
-Pc1 = P01 + N * Pr1
-Pc2 = P02 + N * Pr2
 omega_r = (J1 * omega0 + J2 * omega0) / (J1 + J2)  # nominal freq used
 
 f_eqs = sp.Matrix([
-    # dtheta1/dt
+
+    # dθ1/dt
     omega1 - omega0,
-    
-    # domega1/dt
-    (Tm1 - PL1 - F12) / omega0 - D1 * (omega1 - omega0) / J1,
-    
+
+   # dω1/dt
+    (Tm1 - (PG1/omega0) - D1*(omega1 - omega0))/J1,
+
     # dTm1/dt
-    -alpha1 * (Tm1 * omega0 - Pc1) - beta1 * (omega1 - omega0),
-    
-    # dtheta2/dt
+    -alpha1*(Tm1 - (N*Pr1+P0)*omega1) - beta1*(omega1 - omega0),
+
+    # dθ2/dt = ω2
     omega2 - omega0,
-    
-    # domega2/dt
-    (Tm2 - PL2 + F12) / omega0 - D2 * (omega2 - omega0) / J2,
-    
+
+    # dω2/dt
+    (Tm2 - (PG2/omega0) - D2*(omega2 - omega0))/J2,
+
     # dTm2/dt
-    -alpha2 * (Tm2 * omega0 - Pc2) - beta2 * (omega2 - omega0),
-    
+    -alpha2*(Tm2 - (N*Pr2+P0)*omega2) - beta2*(omega2 - omega0),
+
     # dN/dt
-    -Ks * (omega_r - omega0)
+    Ks*(omega_r - omega0)
+
 ])
+
 
 # ----------------------------
 # State-space matrices
 # ----------------------------
-A = f_eqs.jacobian(X)
+A = sp.Matrix([
+    [0, 1, 0, 0, 0, 0, 0],
+
+    [0, -D1/J1,  1/J1,  KL/(J1*omega0), 0, 0, 0],
+
+    [0, -beta1, -alpha1*omega0, 0, 0, 0, -alpha1*Pr1],
+
+    [0, 0, 0, 0, 1, 0, 0],
+
+    [0, KL/(J2*omega0), 0, -KL/(J2*omega0), -D2/J2, 1/J2, 0],
+
+    [0, 0, 0, 0, -beta2, -alpha2*omega0, -alpha2*Pr2],
+
+    [0, -Ks*J1/(J1+J2), 0, -Ks*J2/(J1+J2), 0, 0, 0]
+])
 B = f_eqs.jacobian(U)
 D = f_eqs.jacobian(V)
 
