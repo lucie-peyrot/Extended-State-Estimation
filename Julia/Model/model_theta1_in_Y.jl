@@ -79,6 +79,7 @@ f_eqs = [
 A = Symbolics.jacobian(f_eqs, X)
 B = Symbolics.jacobian(f_eqs, U)
 D = Symbolics.jacobian(f_eqs, V)
+r_sym = Symbolics.rank(A)
 
 # Output matrices
 C = Symbolics.jacobian(Y, X)
@@ -87,5 +88,8 @@ E = Symbolics.jacobian(Y, V)
 # Set C row for θ1 (measured/fixed) to zeros
 C[1,:] .= 0
 E[1,:] .= 0  # θ1 not influenced by disturbances
+
+@show A
+@show C
 
 end # module
