@@ -50,7 +50,7 @@ F12 = KL * (theta1 - theta2)
 PG1 = PL1 + F12
 PG2 = PL2 - F12
 
-Y = sp.Matrix([theta1, PG1, PG2, F12])
+Y = sp.Matrix([ PG1, PG2, F12])
 
 # Measurement noise
 W1, W2, W3, W4 = sp.symbols('W1 W2 W3 W4')
