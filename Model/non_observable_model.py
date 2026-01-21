@@ -1,19 +1,15 @@
 import sympy as sp
 
 # ----------------------------
-<<<<<<< HEAD
-=======
 # Time symbol
 # ----------------------------
 t = sp.symbols('t')
 
 # ----------------------------
->>>>>>> 20989861f1b6fb57b939c337efa61a6dc9222a99
 # Parameters
 # ----------------------------
 J1, J2, D1, D2, KL, Ks, omega0 = sp.symbols('J1 J2 D1 D2 KL Ks omega0')
 alpha1, alpha2, beta1, beta2 = sp.symbols('alpha1 alpha2 beta1 beta2')
-<<<<<<< HEAD
 Pr1, Pr2, P01, P02 = sp.symbols('Pr1 Pr2 P01 P02')
 
 # ----------------------------
@@ -22,7 +18,7 @@ Pr1, Pr2, P01, P02 = sp.symbols('Pr1 Pr2 P01 P02')
 theta1, omega1, Tm1, theta2, omega2, Tm2, N = sp.symbols(
     'theta1 omega1 Tm1 theta2 omega2 Tm2 N'
 )
-=======
+
 Pr1, Pr2, P0, PG1, PG2 = sp.symbols('Pr1 Pr2 P0 PG1 PG2')
 
 # ----------------------------
@@ -36,33 +32,26 @@ omega2 = sp.Function('omega2')(t)
 Tm2 = sp.Function('Tm2')(t)
 N = sp.Function('N')(t)
 
->>>>>>> 20989861f1b6fb57b939c337efa61a6dc9222a99
 X = sp.Matrix([theta1, omega1, Tm1, theta2, omega2, Tm2, N])
 
 # ----------------------------
 # Control inputs
 # ----------------------------
-<<<<<<< HEAD
-=======
 P01 = sp.Function('P01')(t)
 P02 = sp.Function('P02')(t)
->>>>>>> 20989861f1b6fb57b939c337efa61a6dc9222a99
 U = sp.Matrix([P01, P02])
 
 # ----------------------------
 # Disturbances
 # ----------------------------
-<<<<<<< HEAD
 PL1, PL2 = sp.symbols('PL1 PL2')
-=======
+
 PL1 = sp.Function('PL1')(t)
 PL2 = sp.Function('PL2')(t)
->>>>>>> 20989861f1b6fb57b939c337efa61a6dc9222a99
 V = sp.Matrix([PL1, PL2])
 
 # ----------------------------
 # Measurements
-<<<<<<< HEAD
 # ----------------------------
 PGm1, PGm2, Fm12 = sp.symbols('PGm1 PGm2 Fm12')
 Y = sp.Matrix([PGm1, PGm2, Fm12])
@@ -119,8 +108,7 @@ E = sp.zeros(3, 2)  # if disturbances are known exactly
 # ----------------------------
 sp.pprint(A)
 sp.pprint(C)
-=======
-# theta1 is measured/fixed
+
 # ----------------------------
 PGm1 = sp.Function('PGm1')(t)
 PGm2 = sp.Function('PGm2')(t)
@@ -325,4 +313,3 @@ OO_symb = sp.Matrix.vstack(
 
 sp.pprint(OO_symb.rank())
 
->>>>>>> 20989861f1b6fb57b939c337efa61a6dc9222a99

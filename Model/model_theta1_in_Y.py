@@ -47,10 +47,6 @@ PGm1 = sp.Function('PGm1')(t)
 PGm2 = sp.Function('PGm2')(t)
 
 F12 = KL * (theta1 - theta2)
-<<<<<<< HEAD
-
-Y = sp.Matrix([theta1, PGm1, PGm2, F12])
-=======
 PG1 = PL1 + F12
 PG2 = PL2 - F12
 
@@ -63,11 +59,8 @@ W = sp.Matrix([W1, W2, W3, W4])
 # ----------------------------
 # State equations (f_eqs)
 # ----------------------------
-<<<<<<< HEAD
 omega_r = (J1 * omega0 + J2 * omega0) / (J1 + J2)  # nominal freq used
-=======
-omega_r = (J1 * omega1 + J2 * omega2) / (J1 + J2)  # nominal freq used
->>>>>>> 20989861f1b6fb57b939c337efa61a6dc9222a99
+
 
 f_eqs = sp.Matrix([
 
@@ -90,11 +83,7 @@ f_eqs = sp.Matrix([
     -alpha2*(Tm2 - (N*Pr2+P0)*omega2) - beta2*(omega2 - omega0),
 
     # dN/dt
-<<<<<<< HEAD
-    Ks*(omega_r - omega0)
-=======
     -Ks*(omega_r - omega0)
-
 ])
 
 # Linearized state equations 
@@ -121,37 +110,17 @@ f_eqs_linear = sp.Matrix([
 
     # dN/dt
     -Ks*(omega_r - omega0)
->>>>>>> 20989861f1b6fb57b939c337efa61a6dc9222a99
-
 ])
 
 
 # ----------------------------
 # State-space matrices
 # ----------------------------
-<<<<<<< HEAD
-A = sp.Matrix([
-    [0, 1, 0, 0, 0, 0, 0],
 
-    [0, -D1/J1,  1/J1,  KL/(J1*omega0), 0, 0, 0],
-
-    [0, -beta1, -alpha1*omega0, 0, 0, 0, -alpha1*Pr1],
-
-    [0, 0, 0, 0, 1, 0, 0],
-
-    [0, KL/(J2*omega0), 0, -KL/(J2*omega0), -D2/J2, 1/J2, 0],
-
-    [0, 0, 0, 0, -beta2, -alpha2*omega0, -alpha2*Pr2],
-
-    [0, -Ks*J1/(J1+J2), 0, -Ks*J2/(J1+J2), 0, 0, 0]
-])
-B = f_eqs.jacobian(U)
-D = f_eqs.jacobian(V)
-=======
 A = f_eqs_linear.jacobian(X)
 B = f_eqs_linear.jacobian(U)
 D = f_eqs_linear.jacobian(V)
->>>>>>> 20989861f1b6fb57b939c337efa61a6dc9222a99
+
 
 r_sym = A.rank()
 
@@ -164,8 +133,6 @@ E = Y.jacobian(V)
 # ----------------------------
 sp.pprint(A)
 sp.pprint(C)
-<<<<<<< HEAD
-=======
 
 
 ## Calcul du rang en symbolique en simplifaint les ratios
@@ -215,4 +182,3 @@ OO_symb = sp.Matrix.vstack(
 
 sp.pprint(OO_symb.rank())
 
->>>>>>> 20989861f1b6fb57b939c337efa61a6dc9222a99
