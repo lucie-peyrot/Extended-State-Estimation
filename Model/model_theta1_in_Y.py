@@ -59,7 +59,7 @@ W = sp.Matrix([W1, W2, W3, W4])
 # ----------------------------
 # State equations (f_eqs)
 # ----------------------------
-omega_r = (J1 * omega0 + J2 * omega0) / (J1 + J2)  # nominal freq used
+omega_r = (J1 * omega1 + J2 * omega2) / (J1 + J2)
 
 
 f_eqs = sp.Matrix([
@@ -181,4 +181,3 @@ OO_symb = sp.Matrix.vstack(
 )
 
 sp.pprint(OO_symb.rank())
-

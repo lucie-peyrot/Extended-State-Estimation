@@ -64,7 +64,7 @@ Y = sp.Matrix([PGm1, PGm2, Fm12])
 F12 = KL * (theta1 - theta2)
 Pc1 = P01 + N * Pr1
 Pc2 = P02 + N * Pr2
-omega_r = (J1 * omega0 + J2 * omega0) / (J1 + J2)  # nominal freq used
+omega_r = (J1 * omega1 + J2 * omega2) / (J1 + J2)
 
 # State derivatives
 f_eqs = sp.Matrix([
@@ -312,4 +312,3 @@ OO_symb = sp.Matrix.vstack(
 )
 
 sp.pprint(OO_symb.rank())
-
