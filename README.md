@@ -96,26 +96,42 @@ At $t = 2$ s, one tie-line conductor trips, halving $K_L$. The filter is extende
 
 ---
 
+Here is the corrected README section:
+
+---
+
 ## Per-Window RTS Smoother
 
 In the real application, state estimator outputs are available every $T_g = 1$ s while the filter runs at $\Delta t = 10^{-4}$ s. The classical full-batch RTS smoother is unsuitable for near-real-time use.
 
-The implemented **Per-Window RTS** smoother divides the trajectory into successive $N_w = T_g/\Delta t = 10\,000$-step windows. Each window is anchored by a real measurement (lower noise $\sigma = 0.1\%$); intermediate steps use interpolated measurements ($\sigma = 1\%$). A single RTS backward sweep is triggered at the end of each window, introducing a fixed latency of exactly $T_g = 1$ s.
+The implemented **Per-Window RTS** smoother divides the trajectory into successive $N_w = T_g/\Delta t = 10\,000$-step windows. Each window is anchored by a real measurement (lower noise $\sigma_{\text{meas},i} = 0.001 \cdot |y_i|$, i.e. 0.1%); intermediate steps use interpolated measurements ($\sigma_{\text{int},i} = 0.01 \cdot |y_i|$, i.e. 1%). A single RTS backward sweep is triggered at the end of each window, introducing a fixed latency of exactly $T_g = 1$ s.
 
-**RTS backward pass:**
-$$G_k = P_{k|k}\,A_d^\top\,(P_{k+1|k})^{-1}$$
+The measurement noise matrix switches at each correction step:
+
+$$R_k = \begin{cases} R_{\text{meas}} & \text{if } k \equiv 0 \pmod{N_w} \\ R_{\text{int}} & \text{otherwise} \end{cases}$$
+
+**RTS backward pass**, initialised at the anchor measurement $\Delta\hat{x}^s_{N_w - 1} = \Delta\hat{x}_{N_w-1|N_w-1}$ and running from $j = N_w - 2$ down to $j = 0$:
+
+$$G_k = P_{k|k}\,A_d^\top\,\left(P_{k+1|k}\right)^{-1}$$
+
 $$\Delta\hat{x}^s_k = \Delta\hat{x}_{k|k} + G_k\left(\Delta\hat{x}^s_{k+1} - \Delta\hat{x}_{k+1|k}\right)$$
 
-**Smoother gains (vs. Kalman alone):**
+**Output reconstruction:**
+
+$$\hat{x}^s_{\text{total},j} = x_{eq} + \Delta\hat{x}^s_j$$
+
+$$\hat{y}^s_{\text{total},j} = y_{eq} + C_{\text{obs}}\,\Delta\hat{x}^s_j$$
+
+**Smoother gains (vs. Kalman alone), evaluated on the Gauss-Markov load scenario:**
 
 | Signal | Kalman error | Smoothed error | Gain |
 |--------|-------------|----------------|------|
-| $P_{L1}$ | 0.179% | 0.123% | +31% |
-| $P_{L2}$ | 0.109% | 0.081% | +26% |
-| $\theta_1$, $\theta_2$ | ~0.113% | ~0.082% | +29% |
-| $P_{G1}$ | 0.300% | 0.264% | +12% |
+| $P_{L1}$ | 0.179% | 0.123% | +31.1% |
+| $P_{L2}$ | 0.109% | 0.081% | +25.5% |
+| $T_{m1}$ | 0.066% | 0.076% | −14.9% |
+| $T_{m2}$ | 0.050% | 0.062% | −24.1% |
 
-The smoother is most beneficial for slowly-varying channels (loads, angles) where forward-pass drift accumulates between anchor points. It provides no benefit — and slightly degrades — fast-varying states like $T_{m1}$ and $T_{m2}$.
+The smoother is most beneficial for slowly-varying channels (loads, angles) where forward-pass drift accumulates between anchor points. It provides no benefit — and slightly degrades — fast-varying states like $T_{m1}$ and $T_{m2}$, where the Kalman filter already tracks accurately and the backward correction introduces noise rather than improvement. 
 
 ---
 
